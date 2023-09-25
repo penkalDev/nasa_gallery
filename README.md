@@ -16,7 +16,7 @@ This web application allows users to search for NASA images from the NASA API. U
 - Axios for making API requests to the NASA API.
 - HTML and CSS for structuring and styling the application.
 
-## Getting Started
+
 
 ### Prerequisites
 
