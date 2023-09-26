@@ -2,6 +2,8 @@
   "name": "nasa",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://penkaldev.github.io/nasa_gallery",
+
   "type": "module",
   "scripts": {
     "dev": "vite",
