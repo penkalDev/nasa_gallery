@@ -1,7 +1,7 @@
 
 # NASA Image Search
 
-![Project Logo](https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg)
+![Project Logo]([https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg](https://www.nasa.gov/wp-content/uploads/2018/07/s75-31690.jpeg?resize=768,332))
 
 This web application allows users to search for NASA images from the NASA API. Users can enter search terms and view a gallery of images related to their search.
 
