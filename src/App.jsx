@@ -11,17 +11,21 @@ function App() {
   const fetchNASAImages = async (searchTerm) => {
     try {
       const params = new URLSearchParams({
-        q: searchTerm ? encodeURIComponent(searchTerm) : "space",
+        q: searchTerm ? searchTerm.trim().split(' ').map(word => encodeURIComponent(word)).join('+') : "space",
         media_type: "image",
         page_size: 20,
       });
 
-      const response = await axios.get(`${apiUrl}?${params.toString()}`);
+      const response = await axios.get(apiUrl, {
+        params: params.toString() 
+      });
+
       if (response.status !== 200) {
         throw new Error(
           `Network response was not ok (status ${response.status})`
         );
       }
+
       const data = response.data;
       setImages(data.collection.items);
     } catch (error) {
