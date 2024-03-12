@@ -70,3 +70,22 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Media query dla ekranów o szerokości do 600px */
+@media only screen and (max-width: 600px) {
+  .search-container {
+    display: flex;
+    padding: 1rem;
+    justify-content: center; /* Wyśrodkowuje elementy w poziomie */
+    margin-bottom: 30px;
+  }
+
+
+  .image-container {
+    margin: 50px 0;
+    display: grid;
+    grid-template-columns: 1fr; /* Zmienia na jedną kolumnę */
+    gap: 30px;
+    justify-items: center; /* Wyśrodkowuje elementy w poziomie */
+  }
+}
