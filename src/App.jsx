@@ -6,18 +6,23 @@ import Header from "./components/Header";
 
 function App() {
   const [images, setImages] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const apiUrl = "https://images-api.nasa.gov/search";
 
   const fetchNASAImages = async (searchTerm) => {
     try {
+      const formattedSearchTerm = searchTerm
+        ? searchTerm.trim().replace(/\s+/g, "")
+        : "space";
+
       const params = new URLSearchParams({
-        q: searchTerm ? searchTerm.trim().split(' ').map(word => encodeURIComponent(word)).join('+') : "space",
+        q: formattedSearchTerm,
         media_type: "image",
         page_size: 20,
       });
 
       const response = await axios.get(apiUrl, {
-        params: params.toString() 
+        params: params,
       });
 
       if (response.status !== 200) {
@@ -28,9 +33,11 @@ function App() {
 
       const data = response.data;
       setImages(data.collection.items);
+      setSearchTerm(searchTerm); 
     } catch (error) {
       console.error("Error fetching data:", error);
       setImages([]);
+      setSearchTerm(searchTerm); 
     }
   };
 
@@ -38,7 +45,11 @@ function App() {
     <div>
       <Header />
       <SearchInput onSearch={fetchNASAImages} />
-      <ImageGallery images={images} />
+      {images.length === 0 && searchTerm !== "" && (
+        <h1>No results for phrase `{searchTerm}`</h1>
+      )}
+
+      {images.length > 0 && <ImageGallery images={images} />}
     </div>
   );
 }
