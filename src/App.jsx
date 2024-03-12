@@ -10,12 +10,10 @@ function App() {
 
   const fetchNASAImages = async (searchTerm) => {
     try {
-      const encodedSearchTerm = encodeURIComponent(searchTerm || "space");
-    
       const params = new URLSearchParams({
-        q: encodedSearchTerm,
-        media_type: encodeURIComponent("image"),
-        page_size: encodeURIComponent(20), // limit the number of images
+        q: searchTerm ? encodeURIComponent(searchTerm) : "space",
+        media_type: "image",
+        page_size: 20,
       });
 
       const response = await axios.get(`${apiUrl}?${params.toString()}`);
