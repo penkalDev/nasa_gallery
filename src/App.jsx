@@ -10,9 +10,10 @@ function App() {
 
   const fetchNASAImages = async (searchTerm) => {
     try {
+      const encodedSearchTerm = encodeURIComponent(searchTerm || "space");
     
       const params = new URLSearchParams({
-        q: encodeURIComponent(searchTerm || "space"),
+        q: encodedSearchTerm,
         media_type: encodeURIComponent("image"),
         page_size: encodeURIComponent(20), // limit the number of images
       });
