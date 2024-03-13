@@ -76,16 +76,15 @@
   .search-container {
     display: flex;
     padding: 1rem;
-    justify-content: center; /* Wyśrodkowuje elementy w poziomie */
+    justify-content: center;
     margin-bottom: 30px;
   }
-
 
   .image-container {
     margin: 50px 0;
     display: grid;
-    grid-template-columns: 1fr; /* Zmienia na jedną kolumnę */
+    grid-template-columns: 1fr;
     gap: 30px;
-    justify-items: center; /* Wyśrodkowuje elementy w poziomie */
+    justify-items: center;
   }
 }
