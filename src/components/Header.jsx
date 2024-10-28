@@ -1,15 +1,21 @@
+/* eslint-disable react/prop-types */
+
 // Header.js
 
 
 
-function Header() {
+function Header({ imageUrl }) {
   return (
     <header className="header">
-      <img
-        src="https://www.futurezone.de/wp-content/uploads/sites/11/2021/12/nasa-erdatmosophaere.jpg?resize=1200,574"
-        alt="NASA Logo"
-        className="nasa-logo"
-      />
+      <h1>Image of the day</h1>
+      {imageUrl && (
+        
+        <img
+          src={imageUrl}
+          alt="NASA Image of the Day"
+          className="nasa-logo"
+        />
+      )}
       <h1>NASA Image Gallery</h1>
     </header>
   );

@@ -5,7 +5,7 @@
 /* HEADER */
 .header img {
   width: 80vw; /* Adjust the width percentage as needed */
-  max-height: 300px;
+  max-height: 400px;
   object-fit: contain;
 }
 .header {
