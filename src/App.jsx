@@ -8,14 +8,18 @@ import Header from "./components/Header";
 function App() {
   const [images, setImages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [headerImageUrl, setHeaderImageUrl] = useState(''); // Stan do przechowywania URL obrazu nagłówka
+  const [headerImageUrl, setHeaderImageUrl] = useState('');
+  const [headerImageTitle, setHeaderImageTitle] = useState('') // Stan do przechowywania URL obrazu nagłówka
   const apiUrl = "https://images-api.nasa.gov/search";
 
   // Funkcja do pobierania obrazu dnia z NASA
   const fetchHeaderImage = async () => {
     try {
       const response = await axios.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
-      setHeaderImageUrl(response.data.url); // Ustawia URL obrazu
+      console.log(response.data.title);
+    
+      setHeaderImageUrl(response.data.url);// Ustawia URL obrazu
+      setHeaderImageTitle(response.data.title);
     } catch (error) {
       console.error("Error fetching header image:", error);
     }
@@ -54,7 +58,7 @@ function App() {
 
   return (
     <div>
-      <Header imageUrl={headerImageUrl} /> {/* Przekazanie URL obrazu do Header */}
+      <Header imageUrl={headerImageUrl} imageTitle = {headerImageTitle}/> {/* Przekazanie URL obrazu do Header */}
       <SearchInput onSearch={fetchNASAImages} />
       {images.length === 0 && searchTerm !== "" && (
         <h1>No results for phrase `{searchTerm}`</h1>

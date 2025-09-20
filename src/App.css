@@ -3,10 +3,16 @@
   margin: 0 auto;
 }
 /* HEADER */
-.header img {
+
+/* .header img {
+ 
+} */
+.picOfDay{
   width: 80vw; /* Adjust the width percentage as needed */
-  max-height: 400px;
+  max-height: 450px;
   object-fit: contain;
+  border-radius: 10px;
+
 }
 .header {
   text-align: center;
