@@ -18,7 +18,7 @@ function Header({ imageUrl, imageTitle }) {
           />
         
         )}
-        <h3>{imageTitle}</h3>
+        <h2>{imageTitle}</h2>
       </div>
       <h1>NASA Image Gallery</h1>
     </header>
