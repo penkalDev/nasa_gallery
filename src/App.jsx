@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import SearchInput from "./components/SearchInput";
@@ -7,31 +8,30 @@ import Header from "./components/Header";
 function App() {
   const [images, setImages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [headerImageUrl, setHeaderImageUrl] = useState("");
-  const [headerImageTitle, setHeaderImageTitle] = useState(""); // Stan do przechowywania URL obrazu nagłówka
+  const [headerData, setHeaderData] = useState(null);
+  const [error, setError] = useState(null);
+  const apodUrl = "https://api.nasa.gov/planetary/apod";
   const apiUrl = "https://images-api.nasa.gov/search";
   const apiKey = import.meta.env.VITE_NASA_KEY;
 
-  // Funkcja do pobierania obrazu dnia z NASA
-  const fetchHeaderImage = async () => {
+  // Pobranie APOD na nagłówek (dzisiejsze zdjęcie)
+ const fetchHeaderImage = async () => {
     try {
-      const response = await axios.get(
-        `https://api.nasa.gov/planetary/apod?api_key=${apiKey}`
-      );
-
-      setHeaderImageUrl(response.data.url); // Ustawia URL obrazu
-      setHeaderImageTitle(response.data.title);
-      console.log("APOD data:", response.data);
-      console.log("Title:", response.data.title);
-    } catch (error) {
-      console.error("Error fetching header image:", error);
+      const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
+      setHeaderData(res.data); // cały obiekt data
+      console.log("APOD data:", res.data);
+      setError(null);
+    } catch (err) {
+      console.error("Failed to fetch APOD:", err);
+      setError("Nie udało się pobrać APOD");
     }
   };
 
   useEffect(() => {
-    fetchHeaderImage(); // Wywołaj funkcję pobierającą obraz
-  },);
+    fetchHeaderImage();
+  }, []);// <- pusty array, żeby fetch był tylko raz przy mountowaniu
 
+  // Logika wyszukiwania obrazów NASA – zostaje bez zmian
   const fetchNASAImages = async (searchTerm) => {
     try {
       const formattedSearchTerm = searchTerm
@@ -62,13 +62,23 @@ function App() {
   };
 
   return (
-    <div>
-      <Header imageUrl={headerImageUrl} imageTitle={headerImageTitle} />{" "}
-      {/* Przekazanie URL obrazu do Header */}
-      <SearchInput onSearch={fetchNASAImages} />
-      {images.length === 0 && searchTerm !== "" && (
-        <h1>No results for phrase `{searchTerm}`</h1>
+    <div className="min-h-screen bg-black text-white flex flex-col items-center pt-20 xl:pt-40 ">
+      {/* Nagłówek z APOD */}
+       {error && (
+        <div className="text-red-500 mb-4">{error}</div>
       )}
+      <Header data={headerData} />
+
+      {/* Pole wyszukiwania */}
+      <SearchInput onSearch={fetchNASAImages} />
+
+      {/* Wyniki wyszukiwania */}
+      {images.length === 0 && searchTerm !== "" && (
+        <h1 className="mt-6 text-lg">
+          No results for phrase <span className="font-bold">{searchTerm}</span>
+        </h1>
+      )}
+
       {images.length > 0 && <ImageGallery images={images} />}
     </div>
   );
