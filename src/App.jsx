@@ -30,7 +30,7 @@ function App() {
 
   useEffect(() => {
     fetchHeaderImage(); // Wywołaj funkcję pobierającą obraz
-  }, []);
+  },);
 
   const fetchNASAImages = async (searchTerm) => {
     try {
