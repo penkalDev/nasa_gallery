@@ -5,10 +5,16 @@
 function Header({ data }) {
   if (!data)
     return <div className="text-center text-white mt-20">Loading...</div>;
+  const formattedDate = new Intl.DateTimeFormat("pl-PL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+    .format(new Date(data.date))
+    .replace(/\./g, "-"); // tylko zamiana kropek na myślniki
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-gray-900 p-4 sm:p-6 rounded-2xl shadow-lg text-white flex flex-col sm:flex-row gap-8">
-      
+    <div className="w-5/6 bg-gray-700 p-6 rounded-2xl shadow-lg text-white flex flex-col sm:flex-row gap-8">
       {/* Lewy div: obraz/video */}
       <div className="sm:w-1/2 flex justify-center">
         {data.media_type === "image" ? (
@@ -29,9 +35,12 @@ function Header({ data }) {
 
       {/* Prawy div: tekst */}
       <div className="sm:w-1/2 flex flex-col justify-start">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-2">{data.title}</h2>
-        <p className="text-sm text-gray-400 mb-4">{data.date}</p>
-        <p className="text-gray-300 text-sm sm:text-base">{data.explanation}</p>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-2">
+          {data.title}
+        </h2>
+        <p className="text-sm text-gray-400 mb-4">{formattedDate}</p>
+        <p className="text-gray-300 text-sm sm:text-base p-3">{data.explanation}</p>
+        <p className="text-right p-4">Author:{data.copyright}</p>
       </div>
     </div>
   );
