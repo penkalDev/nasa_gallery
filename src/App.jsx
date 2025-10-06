@@ -1,7 +1,9 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Header from "./components/Header";
+import Disclaimer from "./components/Disclaimer";
+import MainAPOD from "./components/MainAPOD";
+import Footer from "./components/Footer";
 
 function App() {
 
@@ -50,12 +52,14 @@ const fetchHeaderImage = async () => {
 
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center pt-20 xl:pt-40 ">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center  xl:pt-30 gap-2 font-mono">
+      <Disclaimer/>
       {/* Nagłówek z APOD */}
        {error && (
         <div className="text-red-500 mb-4">{error}</div>
       )}
-      <Header data={headerData} />
+      <MainAPOD data={headerData} />
+      <Footer/>
 
      
     </div>
