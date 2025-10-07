@@ -1,75 +1,67 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
-import SearchInput from "./components/SearchInput";
-import ImageGallery from "./components/ImageGallery";
-import Header from "./components/Header";
+import Disclaimer from "./components/Disclaimer";
+import MainAPOD from "./components/MainAPOD";
+import Footer from "./components/Footer";
 
 function App() {
-  const [images, setImages] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [headerImageUrl, setHeaderImageUrl] = useState("");
-  const [headerImageTitle, setHeaderImageTitle] = useState(""); // Stan do przechowywania URL obrazu nagłówka
-  const apiUrl = "https://images-api.nasa.gov/search";
+
+  const [headerData, setHeaderData] = useState(null);
+  const [error, setError] = useState(null);
+  const apodUrl = "https://api.nasa.gov/planetary/apod";
   const apiKey = import.meta.env.VITE_NASA_KEY;
 
-  // Funkcja do pobierania obrazu dnia z NASA
-  const fetchHeaderImage = async () => {
-    try {
-      const response = await axios.get(
-        `https://api.nasa.gov/planetary/apod?api_key=${apiKey}`
-      );
 
-      setHeaderImageUrl(response.data.url); // Ustawia URL obrazu
-      setHeaderImageTitle(response.data.title);
-      console.log("APOD data:", response.data);
-      console.log("Title:", response.data.title);
-    } catch (error) {
-      console.error("Error fetching header image:", error);
+const fetchHeaderImage = async () => {
+  try {
+    // 🔹 Losowa data między 1995-06-16 a dziś
+    const getRandomDate = () => {
+      const start = new Date(1995, 5, 16);
+      const end = new Date();
+      const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+      return date.toISOString().slice(0, 10);
+    };
+
+    // 🔹 prosty cache dzienny w localStorage
+    const today = new Date().toISOString().slice(0, 10);
+    const saved = JSON.parse(localStorage.getItem("dailyAPOD"));
+
+    if (saved && saved.today === today) {
+      setHeaderData(saved.data);
+      console.log("Loaded APOD from cache:", saved.data);
+      return;
     }
-  };
+
+    const randomDate = getRandomDate();
+    const res = await axios.get(`${apodUrl}?api_key=${apiKey}&date=${randomDate}`);
+    setHeaderData(res.data);
+    localStorage.setItem("dailyAPOD", JSON.stringify({ today, data: res.data }));
+    console.log("Fetched new random APOD:", res.data);
+
+    setError(null);
+  } catch (err) {
+    console.error("Failed to fetch APOD:", err);
+    setError("Nie udało się pobrać APOD");
+  }
+};
 
   useEffect(() => {
-    fetchHeaderImage(); // Wywołaj funkcję pobierającą obraz
-  },);
+    fetchHeaderImage();
+  }, []);// <- pusty array, żeby fetch był tylko raz przy mountowaniu
 
-  const fetchNASAImages = async (searchTerm) => {
-    try {
-      const formattedSearchTerm = searchTerm
-        ? searchTerm.trim().replace(/\s+/g, "")
-        : "space";
-
-      const params = new URLSearchParams({
-        q: formattedSearchTerm,
-        media_type: "image",
-        page_size: 20,
-      });
-
-      const response = await axios.get(apiUrl, { params });
-      if (response.status !== 200) {
-        throw new Error(
-          `Network response was not ok (status ${response.status})`
-        );
-      }
-
-      const data = response.data;
-      setImages(data.collection.items);
-      setSearchTerm(searchTerm);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setImages([]);
-      setSearchTerm(searchTerm);
-    }
-  };
 
   return (
-    <div>
-      <Header imageUrl={headerImageUrl} imageTitle={headerImageTitle} />{" "}
-      {/* Przekazanie URL obrazu do Header */}
-      <SearchInput onSearch={fetchNASAImages} />
-      {images.length === 0 && searchTerm !== "" && (
-        <h1>No results for phrase `{searchTerm}`</h1>
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center  xl:pt-30 gap-2 font-mono">
+      <Disclaimer/>
+      {/* Nagłówek z APOD */}
+       {error && (
+        <div className="text-red-500 mb-4">{error}</div>
       )}
-      {images.length > 0 && <ImageGallery images={images} />}
+      <MainAPOD data={headerData} />
+      <Footer/>
+
+     
     </div>
   );
 }
