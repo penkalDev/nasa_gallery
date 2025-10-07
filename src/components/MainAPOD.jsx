@@ -21,7 +21,7 @@ function MainAPOD({ data }) {
           <img
             src={data.url}
             alt={data.title}
-            className="w-full h-auto rounded-xl border-2 border-gray-300 shadow-md object-cover"
+            className="w-full h-auto rounded-xl border-double border-4 border-green-300  shadow-md object-cover"
           />
         ) : (
           <iframe
@@ -35,13 +35,13 @@ function MainAPOD({ data }) {
 
       {/* Prawy div: tekst */}
       <div className="sm:w-1/2 flex flex-col justify-start">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-2">
+        <h2 className="sm:text-3xl font-semibold text-green-300 mb-2">
           {data.title}
         </h2>
-        <p className="text-md text-gray-200 mb-4">
+        <p className="text-sm text-gray-200 mb-4">
           Originally published:{formattedDate}
         </p>
-        <p className="text-gray-200 text-sm sm:text-base p-3">
+        <p className="text-gray-200 text-md p-3">
           {data.explanation}
         </p>
         <p className="text-right p-4">Author: {data?.copyright || "Unknown"}</p>
