@@ -394,19 +394,26 @@ function App() {
   const apiKey = import.meta.env.VITE_NASA_KEY || "DEMO_KEY";
 
   useEffect(() => {
-    const fetchTodayAPOD = async () => {
+    const fetchAPOD = async () => {
       try {
-        const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
-        console.log("SUKCES - Odpowiedź z API NASA:", res.data); // <-- TUTAJ LOG
+        // Pobierz wczorajszą datę (unika błędów 500, gdy dzisiejsze zdjęcie nie jest jeszcze gotowe)
+        const dateObj = new Date();
+        dateObj.setDate(dateObj.getDate() - 1);
+        const yesterday = dateObj.toISOString().slice(0, 10);
+
+        console.log(`Pobieranie APOD dla daty: ${yesterday} z kluczem: ${apiKey ? "Ustawiony" : "Brak"}`);
+
+        const res = await axios.get(`${apodUrl}?api_key=${apiKey}&date=${yesterday}`);
+        console.log("SUKCES - Odpowiedź z API NASA:", res.data);
         setHeaderData(res.data);
         setError(null);
       } catch (err) {
         console.error("BŁĄD pobierania APOD:", err);
-        setError("Nie udało się pobrać dzisiejszego APOD.");
+        setError("Nie udało się pobrać APOD. Sprawdź klucz VITE_NASA_KEY w Netlify.");
       }
     };
 
-    fetchTodayAPOD();
+    fetchAPOD();
   }, []);
 
   return (
