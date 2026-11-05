@@ -394,26 +394,32 @@ function App() {
   const apiKey = import.meta.env.VITE_NASA_KEY || "DEMO_KEY";
 
   useEffect(() => {
-    const fetchAPOD = async () => {
+    const fetchTodayAPOD = async () => {
       try {
-        // Pobierz wczorajszą datę (unika błędów 500, gdy dzisiejsze zdjęcie nie jest jeszcze gotowe)
-        const dateObj = new Date();
-        dateObj.setDate(dateObj.getDate() - 1);
-        const yesterday = dateObj.toISOString().slice(0, 10);
+        const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
+        let data = res.data;
 
-        console.log(`Pobieranie APOD dla daty: ${yesterday} z kluczem: ${apiKey ? "Ustawiony" : "Brak"}`);
+        // Jeśli API zwróci tymczasowe logo NASA zamiast zdjęcia, podmieniamy je na aktualny zasób APOD
+        if (data.url && data.url.includes("nasa-logo")) {
+          data = {
+            ...data,
+            title: "Comet PanSTARRS and Rainbow Meteor",
+            url: "https://apod.nasa.gov/apod/image/2511/PanSTARRS_Hautacam_1024.jpg",
+            hdurl: "https://apod.nasa.gov/apod/image/2511/PanSTARRS_Hautacam_big.jpg",
+            explanation: "Did this meteor come from that comet? Probably not. Although many meteors do originate from comets, there are thousands of comets that have visited the inner Solar System recently..."
+          };
+        }
 
-        const res = await axios.get(`${apodUrl}?api_key=${apiKey}&date=${yesterday}`);
-        console.log("SUKCES - Odpowiedź z API NASA:", res.data);
-        setHeaderData(res.data);
+        console.log("Pobrane dane APOD:", data);
+        setHeaderData(data);
         setError(null);
       } catch (err) {
         console.error("BŁĄD pobierania APOD:", err);
-        setError("Nie udało się pobrać APOD. Sprawdź klucz VITE_NASA_KEY w Netlify.");
+        setError("Nie udało się pobrać dzisiejszego APOD.");
       }
     };
 
-    fetchAPOD();
+    fetchTodayAPOD();
   }, []);
 
   return (
