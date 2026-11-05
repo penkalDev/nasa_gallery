@@ -405,7 +405,7 @@ function App() {
         return;
       }
 
-      // Bez parametru date API NASA zwraca dzisiejszy materiał (APOD)
+      // Bezpośrednie pobranie dzisiejszego APOD z API NASA (bez losowania)
       const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
 
       setHeaderData(res.data);
