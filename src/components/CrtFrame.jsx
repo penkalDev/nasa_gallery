@@ -9,20 +9,21 @@ function CrtFrame({ children, className = "", bulge = 3 }) {
   const clipId = `crt-clip-${id.replace(/:/g, "")}`;
   const scanId = `crt-scan-${id.replace(/:/g, "")}`;
   const vigId = `crt-vig-${id.replace(/:/g, "")}`;
+  
   const b = bulge;
-  const p = b / 100;
+  const p = b / 100; // 0.03 dla bulge = 3
 
-  // Poprawiona ścieżka klipowania dopasowana do kontenera 100%
+  // Clip path w przestrzeni objectBoundingBox (wartości od 0 do 1)
   const clipPath = [
-    `M ${b}% ${b}%`,
-    `C ${b + (100 - 2 * b) * 0.33}% 0%, ${b + (100 - 2 * b) * 0.66}% 0%, ${100 - b}% ${b}%`,
-    `C 100% ${b + (100 - 2 * b) * 0.33}%, 100% ${b + (100 - 2 * b) * 0.66}%, ${100 - b}% ${100 - b}%`,
-    `C ${b + (100 - 2 * b) * 0.66}% 100%, ${b + (100 - 2 * b) * 0.33}% 100%, ${b}% ${100 - b}%`,
-    `C 0% ${b + (100 - 2 * b) * 0.66}%, 0% ${b + (100 - 2 * b) * 0.33}%, ${b}% ${b}%`,
+    `M ${p} ${p}`,
+    `C ${p + (1 - 2 * p) * 0.33} 0, ${p + (1 - 2 * p) * 0.66} 0, ${1 - p} ${p}`,
+    `C 1 ${p + (1 - 2 * p) * 0.33}, 1 ${p + (1 - 2 * p) * 0.66}, ${1 - p} ${1 - p}`,
+    `C ${p + (1 - 2 * p) * 0.66} 1, ${p + (1 - 2 * p) * 0.33} 1, ${p} ${1 - p}`,
+    `C 0 ${p + (1 - 2 * p) * 0.66}, 0 ${p + (1 - 2 * p) * 0.33}, ${p} ${p}`,
     `Z`,
   ].join(" ");
 
-  // SVG viewBox path (0–100 range) dla obramowania
+  // SVG viewBox path (skala 0 - 100) dla obramowania i efektów
   const svgPath = [
     `M ${b} ${b}`,
     `C ${b + (100 - 2 * b) * 0.33} 0, ${b + (100 - 2 * b) * 0.66} 0, ${100 - b} ${b}`,
@@ -43,22 +44,27 @@ function CrtFrame({ children, className = "", bulge = 3 }) {
     `Z`,
   ].join(" ");
 
+  const extend = `${b}%`;
+
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      {/* SVG clipPath definition */}
+    <div className={`relative ${className}`}>
+      {/* Ukryte SVG z clipPath skalowanym proporcjonalnie do elementu */}
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
         <defs>
-          {/* Używamy clipPathUnits="userSpaceOnUse" znormalizowanego do skali 0-100% */}
-          <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
-            <path d={`M ${b} ${b} C ${b + (100 - 2 * b) * 0.33} 0, ${b + (100 - 2 * b) * 0.66} 0, ${100 - b} ${b} C 100 ${b + (100 - 2 * b) * 0.33}, 100 ${b + (100 - 2 * b) * 0.66}, ${100 - b} ${100 - b} C ${b + (100 - 2 * b) * 0.66} 100, ${b + (100 - 2 * b) * 0.33} 100, ${b} ${100 - b} C 0 ${b + (100 - 2 * b) * 0.66}, 0 ${b + (100 - 2 * b) * 0.33}, ${b} ${b} Z`} />
+          <clipPath id={clipId} clipPathUnits="objectBoundingBox">
+            <path d={clipPath} />
           </clipPath>
         </defs>
       </svg>
 
-      {/* Kontener zawartości dopasowany idealnie do ramki */}
+      {/* Kontener zawartości */}
       <div
-        className="absolute inset-0 w-full h-full"
+        className="absolute"
         style={{
+          top: `-${extend}`,
+          left: `-${extend}`,
+          right: `-${extend}`,
+          bottom: `-${extend}`,
           clipPath: `url(#${clipId})`,
         }}
       >
@@ -67,10 +73,19 @@ function CrtFrame({ children, className = "", bulge = 3 }) {
 
       {/* Nakładka SVG: linie skanowania, winieta i ramki */}
       <svg
-        className="absolute inset-0 pointer-events-none w-full h-full"
+        className="absolute pointer-events-none"
+        style={{
+          top: `-${extend}`,
+          left: `-${extend}`,
+          right: `-${extend}`,
+          bottom: `-${extend}`,
+          width: `calc(100% + ${b * 2}%)`,
+          height: `calc(100% + ${b * 2}%)`,
+          overflow: "visible",
+          zIndex: 2,
+        }}
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        style={{ zIndex: 2 }}
       >
         <defs>
           <pattern id={scanId} width="100" height="0.8" patternUnits="userSpaceOnUse">
@@ -81,11 +96,8 @@ function CrtFrame({ children, className = "", bulge = 3 }) {
             <stop offset="100%" stopColor="black" stopOpacity="0.45" />
           </radialGradient>
         </defs>
-        {/* Scanlines */}
         <path d={svgPath} fill={`url(#${scanId})`} />
-        {/* Vignette */}
         <path d={svgPath} fill={`url(#${vigId})`} />
-        {/* Outer border */}
         <path
           d={svgPath}
           fill="none"
@@ -94,7 +106,6 @@ function CrtFrame({ children, className = "", bulge = 3 }) {
           vectorEffect="non-scaling-stroke"
           strokeLinejoin="round"
         />
-        {/* Inner border */}
         <path
           d={innerPath}
           fill="none"
