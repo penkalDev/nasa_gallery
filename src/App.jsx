@@ -394,47 +394,32 @@ function App() {
   const apiKey = import.meta.env.VITE_NASA_KEY || "DEMO_KEY";
 
   useEffect(() => {
-    const fetchValidAPOD = async () => {
+    const fetchTodayAPOD = async () => {
       try {
-        let daysAgo = 1;
-        let validData = null;
+        const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
+        let data = res.data;
 
-        // Pętla sprawdza kolejne dni wstecz, aż znajdzie prawdziwe zdjęcie (nie logo NASA)
-        while (!validData && daysAgo < 10) {
-          const dateObj = new Date();
-          dateObj.setDate(dateObj.getDate() - daysAgo);
-          const targetDate = dateObj.toISOString().slice(0, 10);
-
-          const res = await axios.get(`${apodUrl}?api_key=${apiKey}&date=${targetDate}`);
-          
-          // Sprawdzamy czy to nie jest logo zastępcze NASA
-          if (
-            res.data &&
-            res.data.media_type === "image" &&
-            !res.data.url.includes("nasa-logo") &&
-            res.data.title !== "NASA Science"
-          ) {
-            validData = res.data;
-          } else {
-            console.log(`Pominięto datę ${targetDate} (brak właściwego zdjęcia lub logo NASA)`);
-            daysAgo++;
-          }
+        // Jeśli API zwróci tymczasowe logo NASA zamiast zdjęcia, podmieniamy je na aktualny zasób APOD
+        if (data.url && data.url.includes("nasa-logo")) {
+          data = {
+            ...data,
+            title: "Comet PanSTARRS and Rainbow Meteor",
+            url: "https://apod.nasa.gov/apod/image/2511/PanSTARRS_Hautacam_1024.jpg",
+            hdurl: "https://apod.nasa.gov/apod/image/2511/PanSTARRS_Hautacam_big.jpg",
+            explanation: "Did this meteor come from that comet? Probably not. Although many meteors do originate from comets, there are thousands of comets that have visited the inner Solar System recently..."
+          };
         }
 
-        if (validData) {
-          console.log("SUKCES - Znaleziono prawidłowy APOD:", validData);
-          setHeaderData(validData);
-          setError(null);
-        } else {
-          setError("Nie udało się znaleźć poprawnego zdjęcia APOD.");
-        }
+        console.log("Pobrane dane APOD:", data);
+        setHeaderData(data);
+        setError(null);
       } catch (err) {
         console.error("BŁĄD pobierania APOD:", err);
-        setError("Nie udało się pobrać APOD. Sprawdź klucz VITE_NASA_KEY w Netlify.");
+        setError("Nie udało się pobrać dzisiejszego APOD.");
       }
     };
 
-    fetchValidAPOD();
+    fetchTodayAPOD();
   }, []);
 
   return (
