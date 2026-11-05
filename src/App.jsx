@@ -394,26 +394,47 @@ function App() {
   const apiKey = import.meta.env.VITE_NASA_KEY || "DEMO_KEY";
 
   useEffect(() => {
-    const fetchAPOD = async () => {
+    const fetchValidAPOD = async () => {
       try {
-        // Pobierz wczorajszą datę (unika błędów 500, gdy dzisiejsze zdjęcie nie jest jeszcze gotowe)
-        const dateObj = new Date();
-        dateObj.setDate(dateObj.getDate() - 1);
-        const yesterday = dateObj.toISOString().slice(0, 10);
+        let daysAgo = 1;
+        let validData = null;
 
-        console.log(`Pobieranie APOD dla daty: ${yesterday} z kluczem: ${apiKey ? "Ustawiony" : "Brak"}`);
+        // Pętla sprawdza kolejne dni wstecz, aż znajdzie prawdziwe zdjęcie (nie logo NASA)
+        while (!validData && daysAgo < 10) {
+          const dateObj = new Date();
+          dateObj.setDate(dateObj.getDate() - daysAgo);
+          const targetDate = dateObj.toISOString().slice(0, 10);
 
-        const res = await axios.get(`${apodUrl}?api_key=${apiKey}&date=${yesterday}`);
-        console.log("SUKCES - Odpowiedź z API NASA:", res.data);
-        setHeaderData(res.data);
-        setError(null);
+          const res = await axios.get(`${apodUrl}?api_key=${apiKey}&date=${targetDate}`);
+          
+          // Sprawdzamy czy to nie jest logo zastępcze NASA
+          if (
+            res.data &&
+            res.data.media_type === "image" &&
+            !res.data.url.includes("nasa-logo") &&
+            res.data.title !== "NASA Science"
+          ) {
+            validData = res.data;
+          } else {
+            console.log(`Pominięto datę ${targetDate} (brak właściwego zdjęcia lub logo NASA)`);
+            daysAgo++;
+          }
+        }
+
+        if (validData) {
+          console.log("SUKCES - Znaleziono prawidłowy APOD:", validData);
+          setHeaderData(validData);
+          setError(null);
+        } else {
+          setError("Nie udało się znaleźć poprawnego zdjęcia APOD.");
+        }
       } catch (err) {
         console.error("BŁĄD pobierania APOD:", err);
         setError("Nie udało się pobrać APOD. Sprawdź klucz VITE_NASA_KEY w Netlify.");
       }
     };
 
-    fetchAPOD();
+    fetchValidAPOD();
   }, []);
 
   return (
