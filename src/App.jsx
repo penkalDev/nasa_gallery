@@ -393,41 +393,25 @@ function App() {
   const apodUrl = "https://api.nasa.gov/planetary/apod";
   const apiKey = import.meta.env.VITE_NASA_KEY || "DEMO_KEY";
 
-  const fetchHeaderImage = async () => {
-    try {
-      const today = new Date().toISOString().slice(0, 10);
-      const saved = JSON.parse(localStorage.getItem("dailyAPOD"));
-
-      // Jeśli mamy zapisane dzisiejsze dane w cache, bierzemy je
-      if (saved && saved.today === today && saved.data) {
-        setHeaderData(saved.data);
-        console.log("Loaded today's APOD from cache:", saved.data);
-        return;
-      }
-
-      // Bezpośrednie pobranie dzisiejszego APOD z API NASA (bez losowania)
-      const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
-
-      setHeaderData(res.data);
-      localStorage.setItem(
-        "dailyAPOD",
-        JSON.stringify({ today, data: res.data })
-      );
-      console.log("Fetched today's APOD:", res.data);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch APOD:", err);
-      setError("Nie udało się pobrać dzisiejszego APOD.");
-    }
-  };
-
   useEffect(() => {
-    fetchHeaderImage();
+    const fetchTodayAPOD = async () => {
+      try {
+        const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
+        setHeaderData(res.data);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch APOD:", err);
+        setError("Nie udało się pobrać dzisiejszego APOD.");
+      }
+    };
+
+    fetchTodayAPOD();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center xl:pt-30 gap-2 font-mono">
       <Disclaimer />
+      {/* Nagłówek z APOD */}
       {error && <div className="text-red-500 mb-4">{error}</div>}
       <MainAPOD data={headerData} />
       <Footer />
