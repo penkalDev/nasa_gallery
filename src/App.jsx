@@ -397,10 +397,11 @@ function App() {
     const fetchTodayAPOD = async () => {
       try {
         const res = await axios.get(`${apodUrl}?api_key=${apiKey}`);
+        console.log("SUKCES - Odpowiedź z API NASA:", res.data); // <-- TUTAJ LOG
         setHeaderData(res.data);
         setError(null);
       } catch (err) {
-        console.error("Failed to fetch APOD:", err);
+        console.error("BŁĄD pobierania APOD:", err);
         setError("Nie udało się pobrać dzisiejszego APOD.");
       }
     };
@@ -411,7 +412,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center xl:pt-30 gap-2 font-mono">
       <Disclaimer />
-      {/* Nagłówek z APOD */}
       {error && <div className="text-red-500 mb-4">{error}</div>}
       <MainAPOD data={headerData} />
       <Footer />
